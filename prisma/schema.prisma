@@ -16,6 +16,7 @@ datasource db {
 
 model book{
   id Int @id @default(autoincrement())
+  uuid String
   name String?
   year String?
   author String?
@@ -24,4 +25,7 @@ model book{
   pageCount String
   readPage String
   reading Boolean @default(false)
+  finished Boolean? @default(false)
+  insertedAt DateTime?
+  updatedAt DateTime?
 }

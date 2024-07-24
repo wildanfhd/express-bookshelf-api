@@ -12,9 +12,9 @@ const getBookDetails = async (id) => {
   })
 }
 
-const createBook = async (data) => {
+const createBook = async (newBook) => {
   return await prisma.book.create({
-    data,
+    data: newBook,
   })
 }
 
