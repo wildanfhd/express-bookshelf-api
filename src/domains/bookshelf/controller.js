@@ -3,9 +3,9 @@ const books = require("./books");
 const { getBooks, createBook, getBookDetails } = require("../bookshelf/model")
 
 
-function createBookData(req, res) {
+const createBookData = async (req, res) => {
   const { name, year, author, summary, publisher, pageCount, readPage, reading } = req.body;
-  const id = nanoid(16);
+  const uuid = nanoid(16);
   const isFinished = readPage === pageCount;
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
@@ -28,23 +28,28 @@ function createBookData(req, res) {
 
   // Membuat objek baru
   const newBook = {
-    id, name, year, author, summary, publisher, pageCount, readPage, finished: isFinished, reading, insertedAt, updatedAt
+    uuid, name, year: year.toString(), author, summary, publisher, pageCount: pageCount.toString(), readPage: readPage.toString(), finished: isFinished, reading, insertedAt, updatedAt
   }
 
-  books.push(newBook);
+  // books.push(newBook);
+  const bookList = await createBook(newBook);
 
-  // Memastikan apakah data benar benar sudah masuk dan memiliki panjang > 0
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
-
-  if (isSuccess) {
-    const response = res.status(201).json({
-      status: "success",
-      message: "Buku berhasil ditambahkan",
-      data: {
-        bookId: id
-      }
+  try {
+    if (bookList) {
+      const response = res.status(201).json({
+        status: "success",
+        message: "Buku berhasil ditambahkan",
+        data: {
+          bookId: uuid
+        }
+      });
+      return response;
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
     });
-    return response;
   }
 
   const response = res.status(500).json({
@@ -56,11 +61,7 @@ function createBookData(req, res) {
 
 
 const getAllBooks = async (req, res) => {
-  // const bookList = books;
   const bookList = await getBooks();
-  // res.json(bookList)
-
-  // console.log(bookList)
 
   const isEmpty = bookList.length < 0;
   const { name, reading, finished } = req.query;
